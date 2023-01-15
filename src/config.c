@@ -20,16 +20,16 @@
 #include "config.h"
 #include "util.h"
 
-#include "input/evdev.h"
 #include "audio/audio.h"
+#include "input/evdev.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
 #include <getopt.h>
 #include <pwd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
+#include <unistd.h>
 
 #define MOONLIGHT_PATH "/moonlight"
 #define USER_PATHS "."
@@ -38,55 +38,58 @@
 
 #define write_config_string(fd, key, value) fprintf(fd, "%s = %s\n", key, value)
 #define write_config_int(fd, key, value) fprintf(fd, "%s = %d\n", key, value)
-#define write_config_bool(fd, key, value) fprintf(fd, "%s = %s\n", key, value ? "true":"false")
+#define write_config_bool(fd, key, value) fprintf(fd, "%s = %s\n", key, value ? "true" : "false")
 
 bool inputAdded = false;
 
 static struct option long_options[] = {
-  {"720", no_argument, NULL, 'a'},
-  {"1080", no_argument, NULL, 'b'},
-  {"4k", no_argument, NULL, '0'},
-  {"width", required_argument, NULL, 'c'},
-  {"height", required_argument, NULL, 'd'},
-  {"bitrate", required_argument, NULL, 'g'},
-  {"packetsize", required_argument, NULL, 'h'},
-  {"app", required_argument, NULL, 'i'},
-  {"input", required_argument, NULL, 'j'},
-  {"mapping", required_argument, NULL, 'k'},
-  {"nosops", no_argument, NULL, 'l'},
-  {"audio", required_argument, NULL, 'm'},
-  {"localaudio", no_argument, NULL, 'n'},
-  {"config", required_argument, NULL, 'o'},
-  {"platform", required_argument, NULL, 'p'},
-  {"save", required_argument, NULL, 'q'},
-  {"keydir", required_argument, NULL, 'r'},
-  {"remote", required_argument, NULL, 's'},
-  {"windowed", no_argument, NULL, 't'},
-  {"surround", required_argument, NULL, 'u'},
-  {"fps", required_argument, NULL, 'v'},
-  {"codec", required_argument, NULL, 'x'},
-  {"nounsupported", no_argument, NULL, 'y'},
-  {"quitappafter", no_argument, NULL, '1'},
-  {"viewonly", no_argument, NULL, '2'},
-  {"rotate", required_argument, NULL, '3'},
-  {"verbose", no_argument, NULL, 'z'},
-  {"debug", no_argument, NULL, 'Z'},
-  {"nomouseemulation", no_argument, NULL, '4'},
-  {"pin", required_argument, NULL, '5'},
-  {"port", required_argument, NULL, '6'},
-  {"hdr", no_argument, NULL, '7'},
-  {0, 0, 0, 0},
+    {"720", no_argument, NULL, 'a'},
+    {"1080", no_argument, NULL, 'b'},
+    {"4k", no_argument, NULL, '0'},
+    {"width", required_argument, NULL, 'c'},
+    {"height", required_argument, NULL, 'd'},
+    {"bitrate", required_argument, NULL, 'g'},
+    {"packetsize", required_argument, NULL, 'h'},
+    {"app", required_argument, NULL, 'i'},
+    {"input", required_argument, NULL, 'j'},
+    {"mapping", required_argument, NULL, 'k'},
+    {"nosops", no_argument, NULL, 'l'},
+    {"audio", required_argument, NULL, 'm'},
+    {"localaudio", no_argument, NULL, 'n'},
+    {"config", required_argument, NULL, 'o'},
+    {"platform", required_argument, NULL, 'p'},
+    {"save", required_argument, NULL, 'q'},
+    {"keydir", required_argument, NULL, 'r'},
+    {"remote", required_argument, NULL, 's'},
+    {"windowed", no_argument, NULL, 't'},
+    {"surround", required_argument, NULL, 'u'},
+    {"fps", required_argument, NULL, 'v'},
+    {"codec", required_argument, NULL, 'x'},
+    {"nounsupported", no_argument, NULL, 'y'},
+    {"quitappafter", no_argument, NULL, '1'},
+    {"viewonly", no_argument, NULL, '2'},
+    {"rotate", required_argument, NULL, '3'},
+    {"verbose", no_argument, NULL, 'z'},
+    {"debug", no_argument, NULL, 'Z'},
+    {"nomouseemulation", no_argument, NULL, '4'},
+    {"pin", required_argument, NULL, '5'},
+    {"port", required_argument, NULL, '6'},
+    {"hdr", no_argument, NULL, '7'},
+    {0, 0, 0, 0},
 };
 
-char* get_path(char* name, char* extra_data_dirs) {
+char *get_path(char *name, char *extra_data_dirs)
+{
   const char *xdg_config_dir = getenv("XDG_CONFIG_DIR");
   const char *home_dir = getenv("HOME");
 
-  if (access(name, R_OK) != -1) {
-      return name;
+  if (access(name, R_OK) != -1)
+  {
+    return name;
   }
 
-  if (!home_dir) {
+  if (!home_dir)
+  {
     struct passwd *pw = getpwuid(getuid());
     home_dir = pw->pw_dir;
   }
@@ -99,24 +102,27 @@ char* get_path(char* name, char* extra_data_dirs) {
   char *data_dirs = malloc(strlen(USER_PATHS) + 1 + strlen(xdg_config_dir) + 1 + strlen(home_dir) + 1 + strlen(DEFAULT_CONFIG_DIR) + 1 + strlen(extra_data_dirs) + 2);
   sprintf(data_dirs, USER_PATHS ":%s:%s/" DEFAULT_CONFIG_DIR ":%s/", xdg_config_dir, home_dir, extra_data_dirs);
 
-  char *path = malloc(strlen(data_dirs)+strlen(MOONLIGHT_PATH)+strlen(name)+2);
-  if (path == NULL) {
+  char *path = malloc(strlen(data_dirs) + strlen(MOONLIGHT_PATH) + strlen(name) + 2);
+  if (path == NULL)
+  {
     fprintf(stderr, "Not enough memory\n");
     exit(-1);
   }
 
-  char* data_dir = data_dirs;
-  char* end;
-  do {
+  char *data_dir = data_dirs;
+  char *end;
+  do
+  {
     end = strstr(data_dir, ":");
-    int length = end != NULL ? end - data_dir:strlen(data_dir);
+    int length = end != NULL ? end - data_dir : strlen(data_dir);
     memcpy(path, data_dir, length);
     if (path[0] == '/')
-      sprintf(path+length, MOONLIGHT_PATH "/%s", name);
+      sprintf(path + length, MOONLIGHT_PATH "/%s", name);
     else
-      sprintf(path+length, "/%s", name);
+      sprintf(path + length, "/%s", name);
 
-    if(access(path, R_OK) != -1) {
+    if (access(path, R_OK) != -1)
+    {
       free(data_dirs);
       return path;
     }
@@ -129,8 +135,10 @@ char* get_path(char* name, char* extra_data_dirs) {
   return NULL;
 }
 
-static void parse_argument(int c, char* value, PCONFIGURATION config) {
-  switch (c) {
+static void parse_argument(int c, char *value, PCONFIGURATION config)
+{
+  switch (c)
+  {
   case 'a':
     config->stream.width = 1280;
     config->stream.height = 720;
@@ -159,7 +167,8 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
     config->app = value;
     break;
   case 'j':
-    if (config->inputsCount >= MAX_INPUTS) {
+    if (config->inputsCount >= MAX_INPUTS)
+    {
       perror("Too many inputs specified");
       exit(-1);
     }
@@ -169,7 +178,8 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
     break;
   case 'k':
     config->mapping = get_path(value, getenv("XDG_DATA_DIRS"));
-    if (config->mapping == NULL) {
+    if (config->mapping == NULL)
+    {
       fprintf(stderr, "Unable to open custom mapping file: %s\n", value);
       exit(-1);
     }
@@ -261,16 +271,19 @@ static void parse_argument(int c, char* value, PCONFIGURATION config) {
       config->action = value;
     else if (config->address == NULL)
       config->address = value;
-    else {
+    else
+    {
       perror("Too many options");
       exit(-1);
     }
   }
 }
 
-bool config_file_parse(char* filename, PCONFIGURATION config) {
-  FILE* fd = fopen(filename, "r");
-  if (fd == NULL) {
+bool config_file_parse(char *filename, PCONFIGURATION config)
+{
+  FILE *fd = fopen(filename, "r");
+  if (fd == NULL)
+  {
     fprintf(stderr, "Can't open configuration file: %s\n", filename);
     return false;
   }
@@ -278,16 +291,25 @@ bool config_file_parse(char* filename, PCONFIGURATION config) {
   char *line = NULL;
   size_t len = 0;
 
-  while (getline(&line, &len, fd) != -1) {
+  while (getline(&line, &len, fd) != -1)
+  {
     char *key = NULL, *value = NULL;
-    if (sscanf(line, "%ms = %m[^\n]", &key, &value) == 2) {
-      if (strcmp(key, "address") == 0) {
+    if (sscanf(line, "%ms = %m[^\n]", &key, &value) == 2)
+    {
+      if (strcmp(key, "address") == 0)
+      {
         config->address = value;
-      } else if (strcmp(key, "sops") == 0) {
+      }
+      else if (strcmp(key, "sops") == 0)
+      {
         config->sops = strcmp("true", value) == 0;
-      } else {
-        for (int i=0;long_options[i].name != NULL;i++) {
-          if (strcmp(long_options[i].name, key) == 0) {
+      }
+      else
+      {
+        for (int i = 0; long_options[i].name != NULL; i++)
+        {
+          if (strcmp(long_options[i].name, key) == 0)
+          {
             if (long_options[i].has_arg == required_argument)
               parse_argument(long_options[i].val, value, config);
             else if (strcmp("true", value) == 0)
@@ -300,9 +322,11 @@ bool config_file_parse(char* filename, PCONFIGURATION config) {
   return true;
 }
 
-void config_save(char* filename, PCONFIGURATION config) {
-  FILE* fd = fopen(filename, "w");
-  if (fd == NULL) {
+void config_save(char *filename, PCONFIGURATION config)
+{
+  FILE *fd = fopen(filename, "w");
+  if (fd == NULL)
+  {
     fprintf(stderr, "Can't open configuration file: %s\n", filename);
     exit(EXIT_FAILURE);
   }
@@ -334,7 +358,8 @@ void config_save(char* filename, PCONFIGURATION config) {
   fclose(fd);
 }
 
-void config_parse(int argc, char* argv[], PCONFIGURATION config) {
+void config_parse(int argc, char *argv[], PCONFIGURATION config)
+{
   LiInitializeStreamConfiguration(&config->stream);
 
   config->stream.width = 1280;
@@ -350,11 +375,13 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
 
 #ifdef __arm__
   char cpuinfo[4096] = {};
-  if (read_file("/proc/cpuinfo", cpuinfo, sizeof(cpuinfo) - 1) > 0) {
+  if (read_file("/proc/cpuinfo", cpuinfo, sizeof(cpuinfo) - 1) > 0)
+  {
     // If this is a ARMv6 CPU (like the Pi 1), we'll assume it's not
     // powerful enough to handle audio encryption. The Pi 1 could
     // barely handle Opus decoding alone.
-    if (strstr(cpuinfo, "ARMv6")) {
+    if (strstr(cpuinfo, "ARMv6"))
+    {
       config->stream.encryptionFlags = ENCFLG_NONE;
       printf("Disabling audio encryption on low performance CPU\n");
     }
@@ -362,7 +389,7 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
 #endif
 
   config->debug_level = 0;
-  config->platform = "auto";
+  config->platform = "dji";
   config->app = "Steam";
   config->action = NULL;
   config->address = NULL;
@@ -384,19 +411,22 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
   config->mapping = get_path("gamecontrollerdb.txt", getenv("XDG_DATA_DIRS"));
   config->key_dir[0] = 0;
 
-  char* config_file = get_path("moonlight.conf", "/etc");
+  char *config_file = get_path("moonlight.conf", "/etc");
   if (config_file)
     config_file_parse(config_file, config);
 
-  if (argc == 2 && access(argv[1], F_OK) == 0) {
+  if (argc == 2 && access(argv[1], F_OK) == 0)
+  {
     config->action = "stream";
     if (!config_file_parse(argv[1], config))
       exit(EXIT_FAILURE);
-
-  } else {
+  }
+  else
+  {
     int option_index = 0;
     int c;
-    while ((c = getopt_long_only(argc, argv, "-abc:d:efg:h:i:j:k:lm:no:p:q:r:s:tu:v:w:xy45:6:7", long_options, &option_index)) != -1) {
+    while ((c = getopt_long_only(argc, argv, "-abc:d:efg:h:i:j:k:lm:no:p:q:r:s:tu:v:w:xy45:6:7", long_options, &option_index)) != -1)
+    {
       parse_argument(c, optarg, config);
     }
   }
@@ -404,7 +434,8 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
   if (config->config_file != NULL)
     config_save(config->config_file, config);
 
-  if (config->key_dir[0] == 0x0) {
+  if (config->key_dir[0] == 0x0)
+  {
     struct passwd *pw = getpwuid(getuid());
     const char *dir;
     if ((dir = getenv("XDG_CACHE_DIR")) != NULL)
@@ -415,7 +446,8 @@ void config_parse(int argc, char* argv[], PCONFIGURATION config) {
       sprintf(config->key_dir, "%s" DEFAULT_CACHE_DIR MOONLIGHT_PATH, pw->pw_dir);
   }
 
-  if (config->stream.bitrate == -1) {
+  if (config->stream.bitrate == -1)
+  {
     if (config->stream.height >= 1080 && config->stream.fps >= 60)
       config->stream.bitrate = 20000;
     else if (config->stream.height >= 1080 || config->stream.fps >= 60)

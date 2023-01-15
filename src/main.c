@@ -224,7 +224,7 @@ static void help()
   printf("\t-surround <5.1/7.1>\t\tStream 5.1 or 7.1 surround sound\n");
   printf("\t-keydir <directory>\tLoad encryption keys from directory\n");
   printf("\t-mapping <file>\t\tUse <file> as gamepad mappings configuration file\n");
-  printf("\t-platform <system>\tSpecify system used for audio, video and input: pi/imx/aml/rk/x11/x11_vdpau/sdl/fake (default auto)\n");
+  printf("\t-platform <system>\tSpecify system used for audio, video and input: pi/imx/aml/rk/x11/x11_vdpau/sdl/fake/dji (default dji)\n");
   printf("\t-nounsupported\t\tDon't stream if resolution is not officially supported by the server\n");
   printf("\t-quitappafter\t\tSend quit app request to remote after quitting session\n");
   printf("\t-viewonly\t\tDisable all input processing (view-only mode)\n");
@@ -283,14 +283,18 @@ int main(int argc, char *argv[])
       perror("Not enough memory");
       exit(-1);
     }
-    config.address[0] = 0;
-    printf("Searching for server...\n");
-    gs_discover_server(config.address, &config.port);
-    if (config.address[0] == 0)
-    {
-      fprintf(stderr, "Autodiscovery failed. Specify an IP address next time.\n");
-      exit(-1);
-    }
+
+    strcpy(config.address, "127.0.0.1");
+    printf("No host address specified. Using %s\n", config.address);
+
+    // config.address[0] = 0;
+    // printf("Searching for server...\n");
+    // gs_discover_server(config.address, &config.port);
+    // if (config.address[0] == 0)
+    // {
+    //   fprintf(stderr, "Autodiscovery failed. Specify an IP address next time.\n");
+    //   exit(-1);
+    // }
   }
 
   char host_config_file[128];
