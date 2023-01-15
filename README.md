@@ -1,43 +1,20 @@
-# Moonlight Embedded
+# dji-moonlight-shim
 
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/uaph3i3lfu7gl7m7/branch/master?svg=true)](https://ci.appveyor.com/project/cgutman/moonlight-embedded/branch/master)
+Forked from
+[moonlight-embedded](https://github.com/moonlight-stream/moonlight-embedded).
 
-Moonlight Embedded is an open source implementation of NVIDIA's GameStream, as used by the NVIDIA Shield, but built for Linux.
+Stream games via Moonlight to your DJI FPV Goggles. Friend of
+[dji-moonlight-shim](https://github.com/Knifa/dji-moonlight-shim).
 
-Moonlight Embedded allows you to stream your full collection of games from
-your powerful Windows desktop to your (embedded) Linux system, like Raspberry Pi, CuBox-i and ODROID.
+![splash](assets/splash.png)
 
-## Documentation
+## Details
 
-More information about installing and runnning Moonlight Embedded is available on the [wiki](https://github.com/moonlight-stream/moonlight-embedded/wiki).
+This is a stripped down version of Moonlight Embedded that just yeets encoded
+frames over the network to `dji-moonlight-shim`.
 
-## Requirements
+## License
 
-* [GFE compatible](http://shield.nvidia.com/play-pc-games/) computer with GTX 600/700/900/1000 series GPU (for the PC you're streaming from)
-* High-end wireless router (802.11n dual-band recommended) or wired network
-* Geforce Experience 2.1.1 or higher
+- Moonlight logo: see [LICENSE-Moonlight](assets/LICENSE-Moonlight).
 
-## Quick Start
-
-* Ensure your GFE server and client are on the same network
-* Turn on Shield Streaming in the GFE settings
-* Pair Moonlight Embedded with the GFE server
-* Accept the pairing confirmation on your PC
-* Connect to the GFE Server with Moonlight Embedded
-* Play games!
-
-## Bugs
-
-Please check the wiki and old bug reports before submitting a new bug report.
-
-Bugs can be reported to the [issue tracker](https://github.com/moonlight-stream/moonlight-embedded/issues).
-
-## See also
-
-[Moonlight-common-c](https://github.com/moonlight-stream/moonlight-common-c) is the shared codebase between different Moonlight implementations
-
-## Contribute
-
-1. Fork us
-2. Write code
-3. Send Pull Requests
+Everything else: see [LICENSE](LICENSE).
