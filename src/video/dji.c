@@ -23,11 +23,11 @@ typedef struct connect_header_s
 static int
 dji_setup(int videoFormat, int width, int height, int redrawRate, void *context, int drFlags)
 {
-    // if (videoFormat != VIDEO_FORMAT_H264)
-    // {
-    //     printf("dji_setup: Unsupported video format %d\n", videoFormat);
-    //     return 1;
-    // }
+    if (videoFormat != VIDEO_FORMAT_H264)
+    {
+        printf("dji_setup: Unsupported video format %d\n", videoFormat);
+        return 1;
+    }
 
     printf("dji: %d x %d @ %d FPS\n", width, height, redrawRate);
     printf("dji: context = %p\n", context);
