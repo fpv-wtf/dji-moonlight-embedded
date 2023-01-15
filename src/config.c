@@ -396,7 +396,7 @@ void config_parse(int argc, char *argv[], PCONFIGURATION config)
   config->config_file = NULL;
   config->audio_device = NULL;
   config->sops = true;
-  config->localaudio = false;
+  config->localaudio = true;
   config->fullscreen = true;
   config->unsupported = true;
   config->quitappafter = false;
