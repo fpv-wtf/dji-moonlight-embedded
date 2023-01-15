@@ -6,7 +6,7 @@ find_package(CURL REQUIRED)
 find_package(OpenSSL 1.0.2 REQUIRED)
 find_package(EXPAT REQUIRED)
 
-pkg_check_modules(AVAHI REQUIRED avahi-client)
+# pkg_check_modules(AVAHI REQUIRED avahi-client)
 
 aux_source_directory(./ GAMESTREAM_SRC_LIST)
 aux_source_directory(../third_party/h264bitstream GAMESTREAM_SRC_LIST)
