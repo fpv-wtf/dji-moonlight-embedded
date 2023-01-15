@@ -362,10 +362,10 @@ void config_parse(int argc, char *argv[], PCONFIGURATION config)
 {
   LiInitializeStreamConfiguration(&config->stream);
 
-  config->stream.width = 1280;
-  config->stream.height = 720;
-  config->stream.fps = 60;
-  config->stream.bitrate = -1;
+  config->stream.width = 1440;
+  config->stream.height = 810;
+  config->stream.fps = 120;
+  config->stream.bitrate = 10000;
   config->stream.packetSize = 1392;
   config->stream.streamingRemotely = STREAM_CFG_AUTO;
   config->stream.audioConfiguration = AUDIO_CONFIGURATION_STEREO;
@@ -400,10 +400,10 @@ void config_parse(int argc, char *argv[], PCONFIGURATION config)
   config->fullscreen = true;
   config->unsupported = true;
   config->quitappafter = false;
-  config->viewonly = false;
+  config->viewonly = true;
   config->mouse_emulation = true;
   config->rotate = 0;
-  config->codec = CODEC_UNSPECIFIED;
+  config->codec = CODEC_H264;
   config->pin = 0;
   config->port = 47989;
 
