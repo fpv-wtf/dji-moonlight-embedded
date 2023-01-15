@@ -65,8 +65,8 @@ dji_setup(int videoFormat, int width, int height, int redrawRate, void *context,
 
 static int dji_submit_decode_unit(PDECODE_UNIT decodeUnit)
 {
-    printf("dji frameNumber: %d, frameType: %d, fullLength: %d\n",
-           decodeUnit->frameNumber, decodeUnit->frameType, decodeUnit->fullLength);
+    // printf("dji frameNumber: %d, frameType: %d, fullLength: %d\n",
+    //        decodeUnit->frameNumber, decodeUnit->frameType, decodeUnit->fullLength);
 
     uint8_t *buf = malloc(decodeUnit->fullLength);
 
@@ -79,7 +79,7 @@ static int dji_submit_decode_unit(PDECODE_UNIT decodeUnit)
         entry = entry->next;
     }
 
-    printf("dji_submit_decode_unit: buff = %p, length = %d\n", buf, length);
+    // printf("dji_submit_decode_unit: buff = %p, length = %d\n", buf, length);
 
     send(sockfd, &length, sizeof(length), 0);
     send(sockfd, buf, length, 0);
