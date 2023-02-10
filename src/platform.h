@@ -38,7 +38,8 @@ enum platform
     IMX,
     AML,
     RK,
-    DJI,
+    DJI_NET,
+    DJI_USB,
     FAKE
 };
 

@@ -389,7 +389,7 @@ void config_parse(int argc, char *argv[], PCONFIGURATION config)
 #endif
 
   config->debug_level = 0;
-  config->platform = "dji";
+  config->platform = "dji_usb";
   config->app = "Steam";
   config->action = NULL;
   config->address = NULL;

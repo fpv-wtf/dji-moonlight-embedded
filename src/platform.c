@@ -103,8 +103,10 @@ enum platform platform_check(char *name)
     return SDL;
 #endif
 
-  if (strcmp(name, "dji") == 0)
-    return DJI;
+  if (strcmp(name, "dji_net") == 0)
+    return DJI_NET;
+  if (strcmp(name, "dji_usb") == 0)
+    return DJI_USB;
 
   if (strcmp(name, "fake") == 0)
     return FAKE;
@@ -189,8 +191,10 @@ DECODER_RENDERER_CALLBACKS *platform_get_video(enum platform system)
   case RK:
     return (PDECODER_RENDERER_CALLBACKS)dlsym(RTLD_DEFAULT, "decoder_callbacks_rk");
 #endif
-  case DJI:
-    return &decoder_callbacks_dji;
+  case DJI_NET:
+    return &decoder_callbacks_dji_net;
+  case DJI_USB:
+    return &decoder_callbacks_dji_usb;
   }
   return NULL;
 }
@@ -258,8 +262,8 @@ char *platform_name(enum platform system)
     return "SDL2 (software decoding)";
   case FAKE:
     return "Fake (no a/v output)";
-  case DJI:
-    return "DJI";
+  case DJI_USB:
+    return "DJI (USB)";
   default:
     return "Unknown";
   }

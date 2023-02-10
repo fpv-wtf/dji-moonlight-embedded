@@ -48,4 +48,5 @@ extern DECODER_RENDERER_CALLBACKS decoder_callbacks_x11_vdpau;
 #ifdef HAVE_SDL
 extern DECODER_RENDERER_CALLBACKS decoder_callbacks_sdl;
 #endif
-extern DECODER_RENDERER_CALLBACKS decoder_callbacks_dji;
+extern DECODER_RENDERER_CALLBACKS decoder_callbacks_dji_net;
+extern DECODER_RENDERER_CALLBACKS decoder_callbacks_dji_usb;

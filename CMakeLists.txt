@@ -213,7 +213,7 @@ target_link_libraries(moonlight gamestream)
 #   message(FATAL_ERROR "No video output available")
 # endif()
 
-target_sources(moonlight PRIVATE ./src/video/dji.c)
+target_sources(moonlight PRIVATE ./src/video/dji_net.c ./src/video/dji_usb.c)
 
 configure_file("./src/configuration.h.in" "${PROJECT_BINARY_DIR}/configuration.h")
 
@@ -229,3 +229,7 @@ target_link_libraries(moonlight ${UDEV_LIBRARIES} ${CMAKE_DL_LIBS})
 install(TARGETS moonlight DESTINATION ${CMAKE_INSTALL_BINDIR})
 # install(FILES ./third_party/SDL_GameControllerDB/gamecontrollerdb.txt DESTINATION ${CMAKE_INSTALL_DATADIR}/moonlight)
 install(FILES moonlight.conf DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})
+
+pkg_check_modules(LIBUSB REQUIRED libusb-1.0)
+target_include_directories(moonlight PRIVATE ${LIBUSB_INCLUDE_DIRS})
+target_link_libraries(moonlight ${LIBUSB_LIBRARIES})
