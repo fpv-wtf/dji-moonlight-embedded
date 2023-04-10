@@ -59,13 +59,6 @@ dji_usb_setup(int videoFormat, int width, int height, int redrawRate, void *cont
         exit(1);
     }
 
-    r = libusb_set_configuration(dev, USB_CONFIG);
-    if (r != 0)
-    {
-        fprintf(stderr, "unable to set configuration: (%d) %s\n", r, libusb_strerror(r));
-        exit(1);
-    }
-
     connect_header_t header;
     header.magic = DJI_HEADER_MAGIC;
     header.width = width;
