@@ -108,7 +108,7 @@ static int dji_usb_submit_decode_unit(PDECODE_UNIT decodeUnit)
     {
         if (length + entry->length > sizeof(buf))
         {
-            printf("dji_net: Frame too large: %d >= 1Mb\n", length + entry->length);
+            printf("dji_usb: Frame too large: %d >= 1Mb\n", length + entry->length);
             return DR_NEED_IDR;
         }
 
