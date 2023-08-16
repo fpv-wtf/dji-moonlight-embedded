@@ -19,3 +19,19 @@ The DJI Moonlight project is made up of three parts:
 
 This is a stripped down version of [moonlight-embedded](https://github.com/moonlight-stream/moonlight-embedded) that just yeets encoded
 frames over the BULK or RNDIS to the shim.
+
+## Building
+
+### Linux - Ubuntu 22.04
+
+Pre-requisites:
+
+```
+apt install build-essential cmake libcurl4-openssl-dev libssl-dev libusb-1.0-0-dev
+git clone https://github.com/fpv-wtf/dji-moonlight-embedded.git
+cd dji-moonlight-embedded
+git submodule update --init --recursive
+cmake .
+make
+```
+
