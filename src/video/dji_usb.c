@@ -2,11 +2,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <arpa/inet.h>
 #include <libusb-1.0/libusb.h>
-#include <netinet/in.h> co
+#include <netinet/in.h>
 #include <sys/socket.h>
 
 #include "dji.h"
@@ -18,7 +19,14 @@
 #define USB_INTERFACE 3
 #define USB_ENDPOINT_OUT 0x03
 
-libusb_device_handle *dev = NULL;
+#define ACCEPTABLE_FRAME_TIME 50000000
+
+static libusb_device_handle *dev = NULL;
+
+static struct timespec last_frame_time = {0, 0};
+// static struct timespec last_key_time = {0, 0};
+
+static uint8_t buf[1000000];
 
 static int
 dji_usb_setup(int videoFormat, int width, int height, int redrawRate, void *context, int drFlags)
@@ -72,6 +80,9 @@ dji_usb_setup(int videoFormat, int width, int height, int redrawRate, void *cont
         exit(1);
     }
 
+    clock_gettime(CLOCK_MONOTONIC, &last_frame_time);
+    // last_key_time = last_frame_time;
+
     return 0;
 }
 
@@ -84,21 +95,38 @@ static void dji_usb_cleanup(void)
 
 static int dji_usb_submit_decode_unit(PDECODE_UNIT decodeUnit)
 {
-    uint8_t *buf = malloc(decodeUnit->fullLength);
-
     PLENTRY entry = decodeUnit->bufferList;
     uint32_t length = 0;
     while (entry != NULL)
     {
+        if (length + entry->length > sizeof(buf))
+        {
+            printf("dji_usb: Frame too large: %d >= 1Mb\n", length + entry->length);
+            return DR_NEED_IDR;
+        }
+
         memcpy(buf + length, entry->data, entry->length);
         length += entry->length;
         entry = entry->next;
     }
 
-    libusb_bulk_transfer(dev, USB_ENDPOINT_OUT, &length, sizeof(length), NULL, 0);
-    libusb_bulk_transfer(dev, USB_ENDPOINT_OUT, buf, length, NULL, 0);
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    uint64_t diff = (now.tv_sec - last_frame_time.tv_sec) * 1000000000 +
+                    (now.tv_nsec - last_frame_time.tv_nsec);
+    last_frame_time = now;
 
-    free(buf);
+    if (diff >= ACCEPTABLE_FRAME_TIME && decodeUnit->frameType != FRAME_TYPE_IDR)
+    {
+        printf("dji_net: Dropping frame: %lums >= 50ms\n", diff / 1000000);
+    }
+    else
+    {
+        uint8_t frame_type = decodeUnit->frameType;
+        libusb_bulk_transfer(dev, USB_ENDPOINT_OUT, &length, sizeof(length), NULL, 0);
+        libusb_bulk_transfer(dev, USB_ENDPOINT_OUT, &frame_type, sizeof(frame_type), NULL, 0);
+        libusb_bulk_transfer(dev, USB_ENDPOINT_OUT, buf, length, NULL, 0);
+    }
 
     return DR_OK;
 }

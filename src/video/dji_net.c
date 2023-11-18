@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <arpa/inet.h>
@@ -11,8 +12,13 @@
 #include "dji.h"
 #include "video.h"
 
-int sockfd = -1;
-int frame_counter = 0;
+#define ACCEPTABLE_FRAME_TIME 50000000
+
+static int sockfd = -1;
+static struct timespec last_frame_time = {0, 0};
+// static struct timespec last_key_time = {0, 0};
+
+static uint8_t buf[1000000];
 
 static int
 dji_net_setup(int videoFormat, int width, int height, int redrawRate, void *context, int drFlags)
@@ -54,26 +60,54 @@ dji_net_setup(int videoFormat, int width, int height, int redrawRate, void *cont
 
     send(sockfd, &header, sizeof(header), 0);
 
+    clock_gettime(CLOCK_MONOTONIC, &last_frame_time);
+    // last_key_time = last_frame_time;
+
     return 0;
 }
 
 static int dji_net_submit_decode_unit(PDECODE_UNIT decodeUnit)
 {
-    uint8_t *buf = malloc(decodeUnit->fullLength);
-
     PLENTRY entry = decodeUnit->bufferList;
     uint32_t length = 0;
     while (entry != NULL)
     {
+        if (length + entry->length > sizeof(buf))
+        {
+            printf("dji_net: Frame too large: %d >= 1Mb\n", length + entry->length);
+            return DR_NEED_IDR;
+        }
+
         memcpy(buf + length, entry->data, entry->length);
         length += entry->length;
         entry = entry->next;
     }
 
-    send(sockfd, &length, sizeof(length), 0);
-    send(sockfd, buf, length, 0);
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    uint64_t diff = (now.tv_sec - last_frame_time.tv_sec) * 1000000000 +
+                    (now.tv_nsec - last_frame_time.tv_nsec);
+    last_frame_time = now;
 
-    free(buf);
+    if (diff >= ACCEPTABLE_FRAME_TIME && decodeUnit->frameType != FRAME_TYPE_IDR)
+    {
+        printf("dji_net: Dropping frame: %llums >= 50ms\n", diff / 1000000);
+    }
+    else
+    {
+        uint8_t frame_type = decodeUnit->frameType;
+        send(sockfd, &length, sizeof(length), 0);
+        send(sockfd, &frame_type, sizeof(frame_type), 0);
+        send(sockfd, buf, length, 0);
+    }
+
+    // diff = (now.tv_sec - last_key_time.tv_sec) * 1000000000 +
+    //        (now.tv_nsec - last_key_time.tv_nsec);
+    // if (diff >= 1000000000)
+    // {
+    //     last_key_time = now;
+    //     return DR_NEED_IDR;
+    // }
 
     return DR_OK;
 }
